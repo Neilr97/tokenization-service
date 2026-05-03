@@ -2,7 +2,7 @@
 
 A Spring Boot REST API that tokenizes sensitive account numbers into secure random tokens and allows reverse lookup (detokenization).
 
-The system uses an in-memory H2 database to store the mapping between original values and generated tokens.
+The system uses an in-memory H2 database to store mappings between original values and generated tokens.
 
 ---
 
@@ -12,7 +12,7 @@ The system uses an in-memory H2 database to store the mapping between original v
 - Spring Boot
 - Spring Data JPA
 - H2 Database (in-memory)
-- Maven (with wrapper)
+- Maven (wrapper included)
 - JUnit & Mockito
 
 ---
@@ -21,133 +21,106 @@ The system uses an in-memory H2 database to store the mapping between original v
 
 - Tokenize sensitive account numbers into unique tokens
 - Detokenize tokens back to original values
-- RESTful API design
-- In-memory database for fast lookup
+- REST API design
+- In-memory storage for fast lookup
 - Layered architecture (Controller → Service → Repository)
-- Unit-tested service layer
-
----
-
-## Project Structure
-
-src/
- ├── main/java/com/example/tokenization
- │    ├── controller
- │    ├── service
- │    ├── repository
- │    └── model
- │
- └── test/java/com/example/tokenization
-      └── TokenServiceTest.java
 
 ---
 
 ## Running the Application
 
-### Prerequisites
-- Java 17+
-- No Maven installation required (uses Maven wrapper)
+### Start the application (COPY-PASTE SAFE)
 
-### Start the application
-
+```bash
 ./mvnw spring-boot:run
+```
 
-The service will start at:
+Windows alternative:
 
+```bash
+mvnw.cmd spring-boot:run
+```
+
+Application runs at:
+
+```
 http://localhost:3000
-
-Note: If no custom port is configured, Spring Boot may default to 8080.
+```
 
 ---
 
 ## API Endpoints
 
-### 1. Tokenize
+### Tokenize
 
-POST /tokenize
-
-Request:
-[
-  "4111-1111-1111-1111",
-  "4444-3333-2222-1111"
-]
+```bash
+curl -X POST "http://localhost:3000/tokenize" -H "Content-Type: application/json" -d "[\"4111-1111-1111-1111\",\"4444-3333-2222-1111\"]"
+```
 
 Response:
+```json
 [
   "a3588f42eb8b41149fc4d75f2b79cb8c",
   "8b55bbf2da954338916b6bfc37eecb99"
 ]
-
----
-
-### 2. Detokenize
-
-POST /detokenize
-
-Request:
-[
-  "a3588f42eb8b41149fc4d75f2b79cb8c"
-]
-
-Response:
-[
-  "4111-1111-1111-1111"
-]
-
----
-
-## API Testing (cURL)
-
-### Tokenize
-
-curl -X POST http://localhost:3000/tokenize \
-  -H "Content-Type: application/json" \
-  -d '["4111-1111-1111-1111","4444-3333-2222-1111"]'
+```
 
 ---
 
 ### Detokenize
 
-curl -X POST http://localhost:3000/detokenize \
-  -H "Content-Type: application/json" \
-  -d '["a3588f42eb8b41149fc4d75f2b79cb8c"]'
+```bash
+curl -X POST "http://localhost:3000/detokenize" -H "Content-Type: application/json" -d "[\"a3588f42eb8b41149fc4d75f2b79cb8c\"]"
+```
+
+Response:
+```json
+[
+  "4111-1111-1111-1111"
+]
+```
 
 ---
 
-## H2 Database Console (Optional Debugging)
+## H2 Database Console
 
+```
 http://localhost:3000/h2-console
+```
 
-Login Details:
+Login:
 - JDBC URL: jdbc:h2:mem:tokendb
 - Username: sa
-- Password: (leave blank)
+- Password: (blank)
 
 ---
 
 ## Running Tests
 
+```bash
 ./mvnw test
+```
 
 ---
 
 ## Design Overview
 
 - REST API built with Spring Boot
-- Stateless request/response design
-- Controller → Service → Repository layered architecture
-- Token generation uses UUID for uniqueness
-- In-memory H2 database for fast lookup and development use
+- Controller → Service → Repository architecture
+- UUID-based token generation
+- In-memory H2 database for development/testing
 
 ---
 
 ## Future Improvements
 
-- Use cryptographically secure token generation
-- Add input validation and error handling
+- Replace UUID with cryptographically secure token generation (SecureRandom / HMAC)
+- Encrypt sensitive data at rest (AES-256)
+- Migrate from H2 to PostgreSQL
 - Add authentication and authorization (JWT / OAuth2)
-- Replace H2 with PostgreSQL for persistence
-- Add Swagger/OpenAPI documentation
+- Implement rate limiting for API protection
+- Add observability (Spring Actuator: metrics, health checks)
+- Containerize application using Docker
 
 ---
 
